@@ -33,7 +33,11 @@ function addExpense() {
   expenses.push(expense);
   localStorage.setItem("expenses", JSON.stringify(expenses));
 
-  // updateTotalExpenses();
+  // Clear the input fields
+  document.getElementById("datetime").value = "";
+  document.getElementById("amount").value = "";
+  document.getElementById("description").value = "";
+
   updateTotalAllExpenses();
   updateTotalExpensesMonth();
   updateTotalExpensesYear();
@@ -49,18 +53,6 @@ function updateTotalAllExpenses() {
   document.getElementById("total-expenses").textContent =
     totalAll.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
-
-// function updateTotalExpenses() {
-//   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-//   const total = expenses.reduce(
-//     (sum, expense) => sum + parseFloat(expense.amount),
-//     0
-//   );
-//   document.getElementById("total-expenses").textContent = total.toLocaleString(
-//     "id-ID",
-//     { style: "currency", currency: "IDR" }
-//   );
-// }
 
 function updateTotalExpensesMonth() {
   const now = new Date();
@@ -106,7 +98,7 @@ function loadExpenses() {
     `;
     tableBody.appendChild(noDataRow);
   } else {
-    expenses.forEach((exp) => {
+    expenses.forEach((exp, index) => {
       const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -118,15 +110,33 @@ function loadExpenses() {
       const newRow = document.createElement("tr");
       newRow.classList.add("hover:bg-gray-50", "border-b");
       newRow.innerHTML = `
-        <td class="px-4 py-2">${localDatetime}</td>
+        <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
         <td class="px-4 py-2">${exp.description}</td>
         <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
           style: "currency",
           currency: "IDR",
         })}</td>
       `;
+      newRow
+        .querySelector("td[data-index]")
+        .addEventListener("click", (event) => {
+          const index = event.target.getAttribute("data-index");
+          deleteExpense(index);
+        });
       tableBody.appendChild(newRow);
     });
+  }
+}
+
+function deleteExpense(index) {
+  if (confirm("Are you sure you want to delete this expense?")) {
+    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    expenses.splice(index, 1);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+    updateTotalAllExpenses();
+    updateTotalExpensesMonth();
+    updateTotalExpensesYear();
+    loadExpenses();
   }
 }
 
@@ -190,7 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("refresh-button")
     .addEventListener("click", refreshData);
 
-  // updateTotalExpenses();
   updateTotalAllExpenses();
   updateTotalExpensesMonth();
   updateTotalExpensesYear();
@@ -221,7 +230,6 @@ function loadData(event) {
       localStorage.setItem(key, data[key]);
     }
     loadExpenses();
-    // updateTotalExpenses();
     updateTotalAllExpenses();
   };
   reader.readAsText(file);
@@ -253,7 +261,7 @@ function filterData() {
     `;
     tableBody.appendChild(noDataRow);
   } else {
-    filteredExpenses.forEach((exp) => {
+    filteredExpenses.forEach((exp, index) => {
       const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -265,17 +273,24 @@ function filterData() {
       const newRow = document.createElement("tr");
       newRow.classList.add("hover:bg-gray-50", "border-b");
       newRow.innerHTML = `
-        <td class="px-4 py-2">${localDatetime}</td>
+        <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
         <td class="px-4 py-2">${exp.description}</td>
         <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
           style: "currency",
           currency: "IDR",
         })}</td>
       `;
+      newRow
+        .querySelector("td[data-index]")
+        .addEventListener("click", (event) => {
+          const index = event.target.getAttribute("data-index");
+          deleteExpense(index);
+        });
       tableBody.appendChild(newRow);
     });
   }
 }
+
 function refreshData() {
   document.getElementById("year").value = "";
   document.getElementById("month").value = "";
