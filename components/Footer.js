@@ -2,7 +2,7 @@ class FootCopy extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <footer class="bg-[#AB886D] text-center text-white p-4 fixed bottom-0 w-full">
-        <p>&copy; 2021 Expensify</p>
+        <p>&copy; 2025 <span><a href="https://www.instagram.com/afalupanama/" target="__blank">Expensify</a></span></p>
       </footer>
     `;
   }

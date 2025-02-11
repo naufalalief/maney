@@ -14,8 +14,9 @@ class FilterForm extends HTMLElement {
             <option value="">Select Month</option>
           </select>
         </div>
-        <div class="flex items-end">
+        <div class="flex justify-between">
           <button onclick="filterData()" class="bg-[#493628] font-medium text-white px-4 py-2 rounded">Filter</button>
+          <button id="refresh-button" class="bg-[#493628] text-white px-4 py-2 rounded font-medium">Refresh</button>
         </div>
       </div>
     `;

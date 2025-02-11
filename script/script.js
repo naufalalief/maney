@@ -33,9 +33,11 @@ function addExpense() {
   expenses.push(expense);
   localStorage.setItem("expenses", JSON.stringify(expenses));
 
-  loadExpenses();
-  updateTotalExpenses();
+  // updateTotalExpenses();
   updateTotalAllExpenses();
+  updateTotalExpensesMonth();
+  updateTotalExpensesYear();
+  loadExpenses();
 }
 
 function updateTotalAllExpenses() {
@@ -48,17 +50,17 @@ function updateTotalAllExpenses() {
     totalAll.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
-function updateTotalExpenses() {
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  const total = expenses.reduce(
-    (sum, expense) => sum + parseFloat(expense.amount),
-    0
-  );
-  document.getElementById("total-expenses").textContent = total.toLocaleString(
-    "id-ID",
-    { style: "currency", currency: "IDR" }
-  );
-}
+// function updateTotalExpenses() {
+//   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+//   const total = expenses.reduce(
+//     (sum, expense) => sum + parseFloat(expense.amount),
+//     0
+//   );
+//   document.getElementById("total-expenses").textContent = total.toLocaleString(
+//     "id-ID",
+//     { style: "currency", currency: "IDR" }
+//   );
+// }
 
 function updateTotalExpensesMonth() {
   const now = new Date();
@@ -105,13 +107,12 @@ function loadExpenses() {
     tableBody.appendChild(noDataRow);
   } else {
     expenses.forEach((exp) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString("id-ID", {
-        year: "numeric",
-        month: "2-digit",
+      const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
         day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
         hour12: false,
       });
       const newRow = document.createElement("tr");
@@ -141,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const currentYear = new Date().getFullYear();
   const yearSelect = document.getElementById("year");
-  for (let year = currentYear; year >= 2024; year--) {
+  for (let year = currentYear; year >= 2025; year--) {
     const option = document.createElement("option");
     option.value = year;
     option.textContent = year;
@@ -185,7 +186,11 @@ document.addEventListener("DOMContentLoaded", () => {
       filter.classList.toggle("hidden");
     });
 
-  updateTotalExpenses();
+  document
+    .getElementById("refresh-button")
+    .addEventListener("click", refreshData);
+
+  // updateTotalExpenses();
   updateTotalAllExpenses();
   updateTotalExpensesMonth();
   updateTotalExpensesYear();
@@ -216,7 +221,7 @@ function loadData(event) {
       localStorage.setItem(key, data[key]);
     }
     loadExpenses();
-    updateTotalExpenses();
+    // updateTotalExpenses();
     updateTotalAllExpenses();
   };
   reader.readAsText(file);
@@ -249,13 +254,12 @@ function filterData() {
     tableBody.appendChild(noDataRow);
   } else {
     filteredExpenses.forEach((exp) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString("id-ID", {
-        year: "numeric",
-        month: "2-digit",
+      const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
         day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
         hour12: false,
       });
       const newRow = document.createElement("tr");
@@ -271,4 +275,12 @@ function filterData() {
       tableBody.appendChild(newRow);
     });
   }
+}
+function refreshData() {
+  document.getElementById("year").value = "";
+  document.getElementById("month").value = "";
+  loadExpenses();
+  updateTotalAllExpenses();
+  updateTotalExpensesMonth();
+  updateTotalExpensesYear();
 }
