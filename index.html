@@ -8,193 +8,22 @@
   <title>Expensify</title>
 </head>
 
-<body>
-  <nav class="bg-[#D9EAFD]">
-    <div class="container mx-auto">
-      <div class="flex justify-between items-center p-4">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-800">Expensify</h1>
-        </div>
-        <div>
-          <button onclick="downloadData()" class="bg-blue-500 text-white px-4 py-2 rounded">Download Data</button>
-        </div>
-      </div>
-    </div>
-  </nav>
+<body class="text-[#493628] bg-[#E4E0E1]">
+  <nav-bar></nav-bar>
 
-  <main>
+  <main class="">
     <div class="container mx-auto p-4">
-      <h4 class="text-lg font-semibold mb-4">
-        Total Expenses: <span id="total-expenses">0</span>
-      </h4>
-
-      <div class="flex space-y-4 mb-4 flex-col border border-gray-300 p-4 rounded">
-        <div>
-          <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
-          <select id="year"
-            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            <option value="">Select Year</option>
-          </select>
-        </div>
-        <div>
-          <label for="month" class="block text-sm font-medium text-gray-700">Month</label>
-          <select id="month"
-            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            <option value="">Select Month</option>
-          </select>
-        </div>
-        <div class="flex items-end">
-          <button onclick="filterData()" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
-        </div>
-      </div>
-
-      <div class="flex space-y-4 mb-4 flex-col border border-gray-300 p-4 rounded">
-        <div>
-          <label for="datetime" class="block text-sm font-medium text-gray-700">Date and Time</label>
-          <input type="datetime-local" id="datetime"
-            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            readonly>
-        </div>
-        <div>
-          <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-          <input type="number" id="amount" placeholder="Enter amount"
-            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-        </div>
-        <div>
-          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-          <input type="text" id="description" placeholder="Enter description"
-            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-        </div>
-        <div class="flex items-end">
-          <button onclick="addExpense()" class="bg-blue-500 text-white px-4 py-2 rounded">Add Expense</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto rounded">
-        <table class="min-w-full bg-white border border-gray-300">
-          <thead class="bg-[#D9EAFD]">
-            <tr>
-              <th class="px-4 py-2 text-left">Date and Time</th>
-              <th class="px-4 py-2 text-left">Description</th>
-              <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable()">Amount</th>
-            </tr>
-          </thead>
-          <tbody id="expenses-table-body">
-
-          </tbody>
-        </table>
-      </div>
-
-      <script>
-        let sortOrder = 'asc';
-        function sortTable() {
-          const tableBody = document.getElementById('expenses-table-body');
-          const rows = Array.from(tableBody.querySelectorAll('tr'));
-          rows.sort((a, b) => {
-            const amountA = parseFloat(a.cells[2].textContent);
-            const amountB = parseFloat(b.cells[2].textContent);
-            return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
-          });
-          rows.forEach(row => tableBody.appendChild(row));
-          sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-        }
-
-        function addExpense() {
-          const datetime = document.getElementById('datetime').value;
-          const amount = document.getElementById('amount').value;
-          const description = document.getElementById('description').value;
-
-          if (!datetime || !amount || !description) {
-            alert('Please fill in all fields');
-            return;
-          }
-
-          // Multiply the entered amount by 1000
-          const adjustedAmount = parseFloat(amount) * 1000;
-
-          const expense = { datetime, amount: adjustedAmount, description };
-          let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-          expenses.push(expense);
-          localStorage.setItem('expenses', JSON.stringify(expenses));
-
-          loadExpenses();
-          updateTotalExpenses();
-        }
-
-        function updateTotalExpenses() {
-          const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-          const total = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
-          document.getElementById('total-expenses').textContent = total;
-        }
-
-        function loadExpenses() {
-          const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-          const tableBody = document.getElementById('expenses-table-body');
-          tableBody.innerHTML = ''; // Clear the table body
-
-          expenses.forEach(exp => {
-            const newRow = document.createElement('tr');
-            newRow.classList.add('hover:bg-gray-50', 'border-b');
-            newRow.innerHTML = `
-              <td class="px-4 py-2">${exp.datetime}</td>
-              <td class="px-4 py-2">${exp.description}</td>
-              <td class="px-4 py-2">${exp.amount}</td>
-            `;
-            tableBody.appendChild(newRow);
-          });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-          const datetimeInput = document.getElementById('datetime');
-          const now = new Date();
-          const timezoneOffset = now.getTimezoneOffset() * 60000;
-          const localDatetime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
-          datetimeInput.value = localDatetime;
-
-          const currentYear = new Date().getFullYear();
-          const yearSelect = document.getElementById('year');
-          for (let year = currentYear; year >= 2024; year--) {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            yearSelect.appendChild(option);
-          }
-
-          const currentMonth = new Date().getMonth() + 1;
-          const months = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-          ];
-          const monthSelect = document.getElementById('month');
-          for (let i = 0; i < currentMonth; i++) {
-            const option = document.createElement('option');
-            option.value = i + 1;
-            option.textContent = months[i];
-            monthSelect.appendChild(option);
-          }
-
-          updateTotalExpenses();
-          loadExpenses();
-        });
-
-        function downloadData() {
-          const data = JSON.stringify(localStorage);
-          const blob = new Blob([data], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'data.json';
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-
-        function filterData() {
-          // Implement your filter logic here
-        }
-      </script>
-
+      <expense-summary></expense-summary>
+      <add-expense-form class="hidden"></add-expense-form>
+      <filter-form class="hidden"></filter-form>
+      <expense-table></expense-table>
     </div>
   </main>
 </body>
+<foot-copy></foot-copy>
+
+<script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+<script src="script/script.js"></script>
+<script src="components/index.js" type="module"></script>
 
 </html>
