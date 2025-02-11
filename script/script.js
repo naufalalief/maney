@@ -229,8 +229,10 @@ function loadData(event) {
     for (const key in data) {
       localStorage.setItem(key, data[key]);
     }
-    loadExpenses();
     updateTotalAllExpenses();
+    updateTotalExpensesMonth();
+    updateTotalExpensesYear();
+    loadExpenses();
   };
   reader.readAsText(file);
 }
