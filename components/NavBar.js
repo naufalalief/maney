@@ -5,7 +5,7 @@ class NavBar extends HTMLElement {
         <div class="container mx-auto">
           <div class="flex justify-between items-center p-4">
             <div>
-              <h1 class="text-2xl font-bold text-[#493628]">Expensify</h1>
+              <h1 class="text-2xl font-bold text-[#493628]">Maney</h1>
             </div>
             <div class="relative">
               <button id="toggle-button" data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
