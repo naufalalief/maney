@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="font-sans antialiased">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <link rel="stylesheet" href="style/style.css"> -->
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
   <title>Expensify</title>
 </head>
 
 <body class="text-[#493628] bg-[#E4E0E1]">
   <nav-bar></nav-bar>
 
-  <main class="">
-    <div class="container mx-auto p-4">
+  <main class="container mx-auto">
+    <div class="p-4 mb-12">
       <expense-summary></expense-summary>
       <add-expense-form class="hidden"></add-expense-form>
       <filter-form class="hidden"></filter-form>
       <expense-table></expense-table>
     </div>
   </main>
+  <foot-copy></foot-copy>
 </body>
-<foot-copy></foot-copy>
 
 <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 <script src="script/script.js"></script>

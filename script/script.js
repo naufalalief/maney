@@ -3,8 +3,12 @@ function sortTable() {
   const tableBody = document.getElementById("expenses-table-body");
   const rows = Array.from(tableBody.querySelectorAll("tr"));
   rows.sort((a, b) => {
-    const amountA = parseFloat(a.cells[2].textContent);
-    const amountB = parseFloat(b.cells[2].textContent);
+    const amountA = parseFloat(
+      a.cells[2].textContent.replace(/[^0-9.-]+/g, "")
+    );
+    const amountB = parseFloat(
+      b.cells[2].textContent.replace(/[^0-9.-]+/g, "")
+    );
     return sortOrder === "asc" ? amountA - amountB : amountB - amountA;
   });
   rows.forEach((row) => tableBody.appendChild(row));
@@ -40,7 +44,8 @@ function updateTotalAllExpenses() {
     (sum, expense) => sum + parseFloat(expense.amount),
     0
   );
-  document.getElementById("total-all-expenses").textContent = totalAll;
+  document.getElementById("total-expenses").textContent =
+    totalAll.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
 function updateTotalExpenses() {
@@ -49,7 +54,42 @@ function updateTotalExpenses() {
     (sum, expense) => sum + parseFloat(expense.amount),
     0
   );
-  document.getElementById("total-expenses").textContent = total;
+  document.getElementById("total-expenses").textContent = total.toLocaleString(
+    "id-ID",
+    { style: "currency", currency: "IDR" }
+  );
+}
+
+function updateTotalExpensesMonth() {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const totalMonth = expenses.reduce((sum, expense) => {
+    const expenseDate = new Date(expense.datetime);
+    const expenseMonth = expenseDate.getMonth() + 1;
+    const expenseYear = expenseDate.getFullYear();
+    if (expenseMonth === currentMonth && expenseYear === currentYear) {
+      return sum + parseFloat(expense.amount);
+    }
+    return sum;
+  }, 0);
+  document.getElementById("total-expenses-month").textContent =
+    totalMonth.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+}
+
+function updateTotalExpensesYear() {
+  const currentYear = new Date().getFullYear();
+  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const totalYear = expenses.reduce((sum, expense) => {
+    const expenseYear = new Date(expense.datetime).getFullYear();
+    if (expenseYear === currentYear) {
+      return sum + parseFloat(expense.amount);
+    }
+    return sum;
+  }, 0);
+  document.getElementById("total-expenses-year").textContent =
+    totalYear.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
 function loadExpenses() {
@@ -65,13 +105,24 @@ function loadExpenses() {
     tableBody.appendChild(noDataRow);
   } else {
     expenses.forEach((exp) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString();
+      const localDatetime = new Date(exp.datetime).toLocaleString("id-ID", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
       const newRow = document.createElement("tr");
       newRow.classList.add("hover:bg-gray-50", "border-b");
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
         <td class="px-4 py-2">${exp.description}</td>
-        <td class="px-4 py-2">${exp.amount}</td>
+        <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        })}</td>
       `;
       tableBody.appendChild(newRow);
     });
@@ -136,6 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateTotalExpenses();
   updateTotalAllExpenses();
+  updateTotalExpensesMonth();
+  updateTotalExpensesYear();
   loadExpenses();
 });
 
@@ -196,13 +249,24 @@ function filterData() {
     tableBody.appendChild(noDataRow);
   } else {
     filteredExpenses.forEach((exp) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString();
+      const localDatetime = new Date(exp.datetime).toLocaleString("id-ID", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
       const newRow = document.createElement("tr");
       newRow.classList.add("hover:bg-gray-50", "border-b");
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
         <td class="px-4 py-2">${exp.description}</td>
-        <td class="px-4 py-2">${exp.amount}</td>
+        <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        })}</td>
       `;
       tableBody.appendChild(newRow);
     });
