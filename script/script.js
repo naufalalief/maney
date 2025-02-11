@@ -16,32 +16,39 @@ function sortTable() {
 }
 
 function addExpense() {
-  const datetime = document.getElementById("datetime").value;
-  const amount = document.getElementById("amount").value;
-  const description = document.getElementById("description").value;
+  try {
+    const datetime = document.getElementById("datetime").value;
+    const amount = document.getElementById("amount").value;
+    const description = document.getElementById("description").value;
 
-  if (!datetime || !amount || !description) {
-    alert("Please fill in all fields");
-    return;
+    if (!datetime || !amount || !description) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    // Multiply the entered amount by 1000
+    const adjustedAmount = parseFloat(amount) * 1000;
+
+    const expense = { datetime, amount: adjustedAmount, description };
+    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    expenses.push(expense);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+
+    // Clear the input fields
+    document.getElementById("datetime").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("description").value = "";
+
+    updateTotalAllExpenses();
+    updateTotalExpensesMonth();
+    updateTotalExpensesYear();
+    loadExpenses();
+
+    alert("Expense added successfully");
+  } catch (error) {
+    console.error("Error adding expense:", error);
+    alert("An error occurred while adding the expense. Please try again.");
   }
-
-  // Multiply the entered amount by 1000
-  const adjustedAmount = parseFloat(amount) * 1000;
-
-  const expense = { datetime, amount: adjustedAmount, description };
-  let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  expenses.push(expense);
-  localStorage.setItem("expenses", JSON.stringify(expenses));
-
-  // Clear the input fields
-  document.getElementById("datetime").value = "";
-  document.getElementById("amount").value = "";
-  document.getElementById("description").value = "";
-
-  updateTotalAllExpenses();
-  updateTotalExpensesMonth();
-  updateTotalExpensesYear();
-  loadExpenses();
 }
 
 function updateTotalAllExpenses() {
@@ -89,7 +96,7 @@ function updateTotalExpensesYear() {
 function loadExpenses() {
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const tableBody = document.getElementById("expenses-table-body");
-  tableBody.innerHTML = ""; // Clear the table body
+  tableBody.innerHTML = "";
 
   if (expenses.length === 0) {
     const noDataRow = document.createElement("tr");
@@ -137,6 +144,7 @@ function deleteExpense(index) {
     updateTotalExpensesMonth();
     updateTotalExpensesYear();
     loadExpenses();
+    alert("Expense deleted successfully");
   }
 }
 
@@ -207,89 +215,111 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function downloadData() {
-  const data = JSON.stringify(localStorage);
-  const blob = new Blob([data], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "data.json";
-  a.click();
-  URL.revokeObjectURL(url);
+  try {
+    const data = JSON.stringify(localStorage);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    alert("Data downloaded successfully");
+  } catch (error) {
+    console.error("Error downloading data:", error);
+    alert("An error occurred while downloading the data. Please try again.");
+  }
 }
 
 function loadData(event) {
-  const file = event.target.files[0];
-  if (!file) {
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const data = JSON.parse(e.target.result);
-    for (const key in data) {
-      localStorage.setItem(key, data[key]);
+  try {
+    const file = event.target.files[0];
+    if (!file) {
+      return;
     }
-    updateTotalAllExpenses();
-    updateTotalExpensesMonth();
-    updateTotalExpensesYear();
-    loadExpenses();
-  };
-  reader.readAsText(file);
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const data = JSON.parse(e.target.result);
+      for (const key in data) {
+        localStorage.setItem(key, data[key]);
+      }
+      updateTotalAllExpenses();
+      updateTotalExpensesMonth();
+      updateTotalExpensesYear();
+      loadExpenses();
+    };
+    reader.readAsText(file);
+    alert("Data loaded successfully");
+  } catch (error) {
+    console.error("Error loading data:", error);
+    alert("An error occurred while loading the data. Please try again.");
+  }
 }
 
 function filterData() {
-  const selectedYear = document.getElementById("year").value;
-  const selectedMonth = document.getElementById("month").value;
+  try {
+    const selectedYear = document.getElementById("year").value;
+    const selectedMonth = document.getElementById("month").value;
 
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  const filteredExpenses = expenses.filter((expense) => {
-    const expenseDate = new Date(expense.datetime);
-    const expenseYear = expenseDate.getFullYear();
-    const expenseMonth = expenseDate.getMonth() + 1; // getMonth() returns 0-11
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const filteredExpenses = expenses.filter((expense) => {
+      const expenseDate = new Date(expense.datetime);
+      const expenseYear = expenseDate.getFullYear();
+      const expenseMonth = expenseDate.getMonth() + 1; // getMonth() returns 0-11
 
-    return (
-      (selectedYear === "" || expenseYear == selectedYear) &&
-      (selectedMonth === "" || expenseMonth == selectedMonth)
-    );
-  });
-
-  const tableBody = document.getElementById("expenses-table-body");
-  tableBody.innerHTML = ""; // Clear the table body
-
-  if (filteredExpenses.length === 0) {
-    const noDataRow = document.createElement("tr");
-    noDataRow.innerHTML = `
-      <td colspan="3" class="text-center py-4">Data not found</td>
-    `;
-    tableBody.appendChild(noDataRow);
-  } else {
-    filteredExpenses.forEach((exp, index) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-      const newRow = document.createElement("tr");
-      newRow.classList.add("hover:bg-gray-50", "border-b");
-      newRow.innerHTML = `
-        <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
-        <td class="px-4 py-2">${exp.description}</td>
-        <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
-          style: "currency",
-          currency: "IDR",
-        })}</td>
-      `;
-      newRow
-        .querySelector("td[data-index]")
-        .addEventListener("click", (event) => {
-          const index = event.target.getAttribute("data-index");
-          deleteExpense(index);
-        });
-      tableBody.appendChild(newRow);
+      return (
+        (selectedYear === "" || expenseYear == selectedYear) &&
+        (selectedMonth === "" || expenseMonth == selectedMonth)
+      );
     });
+
+    const tableBody = document.getElementById("expenses-table-body");
+    tableBody.innerHTML = ""; // Clear the table body
+
+    if (filteredExpenses.length === 0) {
+      const noDataRow = document.createElement("tr");
+      noDataRow.innerHTML = `
+        <td colspan="3" class="text-center py-4">Data not found</td>
+      `;
+      tableBody.appendChild(noDataRow);
+    } else {
+      filteredExpenses.forEach((exp, index) => {
+        const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+        const newRow = document.createElement("tr");
+        newRow.classList.add("hover:bg-gray-50", "border-b");
+        newRow.innerHTML = `
+          <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
+          <td class="px-4 py-2">${exp.description}</td>
+          <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString(
+            "id-ID",
+            {
+              style: "currency",
+              currency: "IDR",
+            }
+          )}</td>
+        `;
+        newRow
+          .querySelector("td[data-index]")
+          .addEventListener("click", (event) => {
+            const index = event.target.getAttribute("data-index");
+            deleteExpense(index);
+          });
+        tableBody.appendChild(newRow);
+      });
+    }
+
+    alert(`${filteredExpenses.length} data found`);
+  } catch (error) {
+    console.error("Error filtering data:", error);
+    alert("An error occurred while filtering the data. Please try again.");
   }
 }
 
