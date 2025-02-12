@@ -399,7 +399,7 @@ export function showModal(index) {
   document.getElementById('modal-description').innerHTML =
     `<strong>Description:</strong><br>${expense.description}`;
   document.getElementById('modal-amount').innerHTML =
-    `<strong>Amount:</strong><br>${parseFloat(expense.amount)
+    `<strong>Rp.</strong><br>${parseFloat(expense.amount)
       .toLocaleString('id-ID', {
         style: 'currency',
         currency: 'IDR',
