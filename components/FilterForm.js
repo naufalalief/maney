@@ -19,6 +19,45 @@ class FilterForm extends HTMLElement {
         </div>
       </div>
     `;
+
+    this.populateYearOptions();
+    this.populateMonthOptions();
+  }
+
+  populateYearOptions() {
+    const currentYear = new Date().getFullYear();
+    const yearSelect = this.querySelector("#year");
+    for (let year = currentYear; year >= 2025; year--) {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      yearSelect.appendChild(option);
+    }
+  }
+
+  populateMonthOptions() {
+    const currentMonth = new Date().getMonth() + 1;
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const monthSelect = this.querySelector("#month");
+    for (let i = 0; i < currentMonth; i++) {
+      const option = document.createElement("option");
+      option.value = i + 1;
+      option.textContent = months[i];
+      monthSelect.appendChild(option);
+    }
   }
 }
 

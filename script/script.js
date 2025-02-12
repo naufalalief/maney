@@ -1,9 +1,11 @@
+import Swal from "sweetalert2";
+
 let sortOrder = "asc";
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentExpenseIndex = null;
 
-function sortTable() {
+export function sortTable() {
   const tableBody = document.getElementById("expenses-table-body");
   const rows = Array.from(tableBody.querySelectorAll("tr"));
   rows.sort((a, b) => {
@@ -19,7 +21,7 @@ function sortTable() {
   sortOrder = sortOrder === "asc" ? "desc" : "asc";
 }
 
-function addExpense() {
+export function addExpense() {
   try {
     const datetime = document.getElementById("datetime").value;
     const amount = document.getElementById("amount").value;
@@ -49,13 +51,13 @@ function addExpense() {
   }
 }
 
-function updateTotals() {
+export function updateTotals() {
   updateTotalAllExpenses();
   updateTotalExpensesMonth();
   updateTotalExpensesYear();
 }
 
-function updateTotalAllExpenses() {
+export function updateTotalAllExpenses() {
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const totalAll = expenses.reduce(
     (sum, expense) => sum + parseFloat(expense.amount),
@@ -65,7 +67,7 @@ function updateTotalAllExpenses() {
     totalAll.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
-function updateTotalExpensesMonth() {
+export function updateTotalExpensesMonth() {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -83,7 +85,7 @@ function updateTotalExpensesMonth() {
     totalMonth.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
-function updateTotalExpensesYear() {
+export function updateTotalExpensesYear() {
   const currentYear = new Date().getFullYear();
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const totalYear = expenses.reduce((sum, expense) => {
@@ -97,7 +99,7 @@ function updateTotalExpensesYear() {
     totalYear.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
-function loadExpenses() {
+export function loadExpenses() {
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const tableBody = document.getElementById("expenses-table-body");
   tableBody.innerHTML = "";
@@ -129,7 +131,7 @@ function loadExpenses() {
       }
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
-        <td class="px-4 py-2 cursor-pointer underline text-underline" data-index="${index}">${trimmedDescription}</td>
+        <td class="px-4 py-2 cursor-pointer underline text-underline" data-index="${startIndex + index}">${trimmedDescription}</td>
         <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
           style: "currency",
           currency: "IDR",
@@ -150,7 +152,7 @@ function loadExpenses() {
   updatePaginationInfo(expenses.length);
 }
 
-function updatePaginationInfo(totalItems) {
+export function updatePaginationInfo(totalItems) {
   const pageInfo = document.getElementById("page-info");
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
@@ -159,14 +161,14 @@ function updatePaginationInfo(totalItems) {
   document.getElementById("next-page").disabled = currentPage === totalPages;
 }
 
-function prevPage() {
+export function prevPage() {
   if (currentPage > 1) {
     currentPage--;
     loadExpenses();
   }
 }
 
-function nextPage() {
+export function nextPage() {
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const totalPages = Math.ceil(expenses.length / itemsPerPage);
   if (currentPage < totalPages) {
@@ -175,7 +177,7 @@ function nextPage() {
   }
 }
 
-function deleteExpense(index) {
+export function deleteExpense(index) {
   if (confirm("Are you sure you want to delete this expense?")) {
     let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
     expenses.splice(index, 1);
@@ -186,7 +188,7 @@ function deleteExpense(index) {
   }
 }
 
-function deleteExpenseFromModal() {
+export function deleteExpenseFromModal() {
   if (currentExpenseIndex !== null) {
     deleteExpense(currentExpenseIndex);
     closeModal();
@@ -229,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadExpenses();
 });
 
-function downloadData() {
+export function downloadData() {
   try {
     const data = JSON.stringify(localStorage);
     const blob = new Blob([data], { type: "application/json" });
@@ -246,7 +248,7 @@ function downloadData() {
   }
 }
 
-function loadData(event) {
+export function loadData(event) {
   try {
     const file = event.target.files[0];
     if (!file) {
@@ -270,7 +272,7 @@ function loadData(event) {
   }
 }
 
-function filterData() {
+export function filterData() {
   try {
     const selectedYear = document.getElementById("year").value;
     const selectedMonth = document.getElementById("month").value;
@@ -341,48 +343,85 @@ function filterData() {
   }
 }
 
-function refreshData() {
+export function refreshData() {
   document.getElementById("year").value = "";
   document.getElementById("month").value = "";
   loadExpenses();
   updateTotals();
 }
 
-function showModal(index) {
+export function showModal(index) {
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const expense = expenses[index];
   currentExpenseIndex = index;
 
-  document.getElementById(
-    "modal-date"
-  ).innerHTML = `<strong>Date:</strong><br>${new Date(
-    expense.datetime
-  ).toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })}`;
-  document.getElementById(
-    "modal-description"
-  ).innerHTML = `<strong>Description:</strong><br>${expense.description}`;
-  document.getElementById(
-    "modal-amount"
-  ).innerHTML = `<strong>Amount:</strong><br>${parseFloat(
-    expense.amount
-  ).toLocaleString("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })}`;
+  document.getElementById("modal-date").innerHTML =
+    `<strong>Date:</strong><br>${new Date(expense.datetime).toLocaleString(
+      "en-GB",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }
+    )}`;
+  document.getElementById("modal-description").innerHTML =
+    `<strong>Description:</strong><br>${expense.description}`;
+  document.getElementById("modal-amount").innerHTML =
+    `<strong>Amount:</strong><br>${parseFloat(expense.amount).toLocaleString(
+      "id-ID",
+      {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }
+    )}`;
 
   document.getElementById("expense-modal").classList.remove("hidden");
 }
 
-function closeModal() {
+export function closeModal() {
   document.getElementById("expense-modal").classList.add("hidden");
   currentExpenseIndex = null;
+}
+
+export default function app() {
+  document.addEventListener("DOMContentLoaded", () => {
+    const datetimeInput = document.getElementById("datetime");
+
+    function updateDatetime() {
+      const now = new Date();
+      const localDatetime = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .slice(0, 16);
+      datetimeInput.value = localDatetime;
+    }
+
+    document
+      .getElementById("toggle-form-button")
+      .addEventListener("click", () => {
+        const form = document.querySelector("add-expense-form");
+        form.classList.toggle("hidden");
+        if (!form.classList.contains("hidden")) {
+          updateDatetime();
+        }
+        refreshData();
+      });
+
+    document
+      .getElementById("toggle-filter-button")
+      .addEventListener("click", () => {
+        const filter = document.querySelector("filter-form");
+        filter.classList.toggle("hidden");
+        refreshData();
+      });
+
+    updateTotals();
+    loadExpenses();
+  });
 }
