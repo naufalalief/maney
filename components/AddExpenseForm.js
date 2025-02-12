@@ -15,7 +15,7 @@ class AddExpenseForm extends HTMLElement {
           <input type="text" id="description" placeholder="Enter description" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
         </div>
         <div class="flex justify-end">
-          <button onclick="addExpense()" class="bg-[#493628] font-medium text-white px-4 py-2 rounded">Add Expense</button>
+          <button onclick="addExpense()" class="bg-[#493628] font-medium text-white px-4 py-2 rounded w-full">Add Expense</button>
         </div>
       </div>
     `;

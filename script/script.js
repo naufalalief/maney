@@ -123,10 +123,15 @@ function loadExpenses() {
           : exp.description;
 
       const newRow = document.createElement("tr");
-      newRow.classList.add("hover:bg-gray-50", "border-b");
+      newRow.classList.add("hover:bg-gray-50");
+
+      if (index < paginatedExpenses.length - 1) {
+        newRow.classList.add("border-b");
+      }
+
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
-        <td class="px-4 py-2 cursor-pointer" data-index="${index}">${trimmedDescription}</td>
+        <td class="px-4 py-2 cursor-pointer underline text-underline" data-index="${index}">${trimmedDescription}</td>
         <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
           style: "currency",
           currency: "IDR",
@@ -306,9 +311,14 @@ function filterData() {
 
         const newRow = document.createElement("tr");
         newRow.classList.add("hover:bg-gray-50", "border-b");
+
+        if (index < filteredExpenses.length - 1) {
+          newRow.classList.add("border-b");
+        }
+
         newRow.innerHTML = `
           <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
-          <td class="px-4 py-2">${trimmedDescription}</td>
+          <td class="px-4 py-2 underline text-underline">${trimmedDescription}</td>
           <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString(
             "id-ID",
             {
