@@ -1,6 +1,7 @@
 let sortOrder = "asc";
 let currentPage = 1;
 const itemsPerPage = 10;
+let currentExpenseIndex = null;
 
 function sortTable() {
   const tableBody = document.getElementById("expenses-table-body");
@@ -29,21 +30,16 @@ function addExpense() {
       return;
     }
 
-    // Multiply the entered amount by 1000
     const adjustedAmount = parseFloat(amount) * 1000;
-
     const expense = { datetime, amount: adjustedAmount, description };
     let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
     expenses.push(expense);
     localStorage.setItem("expenses", JSON.stringify(expenses));
 
-    // Clear the input fields
     document.getElementById("amount").value = "";
     document.getElementById("description").value = "";
 
-    updateTotalAllExpenses();
-    updateTotalExpensesMonth();
-    updateTotalExpensesYear();
+    updateTotals();
     loadExpenses();
 
     alert("Expense added successfully");
@@ -51,6 +47,12 @@ function addExpense() {
     console.error("Error adding expense:", error);
     alert("An error occurred while adding the expense. Please try again.");
   }
+}
+
+function updateTotals() {
+  updateTotalAllExpenses();
+  updateTotalExpensesMonth();
+  updateTotalExpensesYear();
 }
 
 function updateTotalAllExpenses() {
@@ -106,9 +108,7 @@ function loadExpenses() {
 
   if (paginatedExpenses.length === 0) {
     const noDataRow = document.createElement("tr");
-    noDataRow.innerHTML = `
-      <td colspan="3" class="text-center py-4">Empty data</td>
-    `;
+    noDataRow.innerHTML = `<td colspan="3" class="text-center py-4">Empty data</td>`;
     tableBody.appendChild(noDataRow);
   } else {
     paginatedExpenses.forEach((exp, index) => {
@@ -124,11 +124,9 @@ function loadExpenses() {
 
       const newRow = document.createElement("tr");
       newRow.classList.add("hover:bg-gray-50");
-
       if (index < paginatedExpenses.length - 1) {
         newRow.classList.add("border-b");
       }
-
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
         <td class="px-4 py-2 cursor-pointer underline text-underline" data-index="${index}">${trimmedDescription}</td>
@@ -182,11 +180,16 @@ function deleteExpense(index) {
     let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
     expenses.splice(index, 1);
     localStorage.setItem("expenses", JSON.stringify(expenses));
-    updateTotalAllExpenses();
-    updateTotalExpensesMonth();
-    updateTotalExpensesYear();
+    updateTotals();
     loadExpenses();
     alert("Expense deleted successfully");
+  }
+}
+
+function deleteExpenseFromModal() {
+  if (currentExpenseIndex !== null) {
+    deleteExpense(currentExpenseIndex);
+    closeModal();
   }
 }
 
@@ -222,9 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
       refreshData();
     });
 
-  updateTotalAllExpenses();
-  updateTotalExpensesMonth();
-  updateTotalExpensesYear();
+  updateTotals();
   loadExpenses();
 });
 
@@ -258,9 +259,7 @@ function loadData(event) {
       for (const key in data) {
         localStorage.setItem(key, data[key]);
       }
-      updateTotalAllExpenses();
-      updateTotalExpensesMonth();
-      updateTotalExpensesYear();
+      updateTotals();
       loadExpenses();
     };
     reader.readAsText(file);
@@ -280,7 +279,7 @@ function filterData() {
     const filteredExpenses = expenses.filter((expense) => {
       const expenseDate = new Date(expense.datetime);
       const expenseYear = expenseDate.getFullYear();
-      const expenseMonth = expenseDate.getMonth() + 1; // getMonth() returns 0-11
+      const expenseMonth = expenseDate.getMonth() + 1;
 
       return (
         (selectedYear === "" || expenseYear == selectedYear) &&
@@ -289,13 +288,11 @@ function filterData() {
     });
 
     const tableBody = document.getElementById("expenses-table-body");
-    tableBody.innerHTML = ""; // Clear the table body
+    tableBody.innerHTML = "";
 
     if (filteredExpenses.length === 0) {
       const noDataRow = document.createElement("tr");
-      noDataRow.innerHTML = `
-        <td colspan="3" class="text-center py-4">Data not found</td>
-      `;
+      noDataRow.innerHTML = `<td colspan="3" class="text-center py-4">Data not found</td>`;
       tableBody.appendChild(noDataRow);
     } else {
       filteredExpenses.forEach((exp, index) => {
@@ -310,12 +307,10 @@ function filterData() {
             : exp.description;
 
         const newRow = document.createElement("tr");
-        newRow.classList.add("hover:bg-gray-50", "border-b");
-
+        newRow.classList.add("hover:bg-gray-50");
         if (index < filteredExpenses.length - 1) {
           newRow.classList.add("border-b");
         }
-
         newRow.innerHTML = `
           <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
           <td class="px-4 py-2 underline text-underline">${trimmedDescription}</td>
@@ -350,14 +345,13 @@ function refreshData() {
   document.getElementById("year").value = "";
   document.getElementById("month").value = "";
   loadExpenses();
-  updateTotalAllExpenses();
-  updateTotalExpensesMonth();
-  updateTotalExpensesYear();
+  updateTotals();
 }
 
 function showModal(index) {
   const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
   const expense = expenses[index];
+  currentExpenseIndex = index;
 
   document.getElementById(
     "modal-date"
@@ -390,4 +384,5 @@ function showModal(index) {
 
 function closeModal() {
   document.getElementById("expense-modal").classList.add("hidden");
+  currentExpenseIndex = null;
 }

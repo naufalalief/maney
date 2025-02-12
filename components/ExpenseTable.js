@@ -28,8 +28,9 @@ class ExpenseTable extends HTMLElement {
             <p id="modal-description"></p>
             <p id="modal-amount"></p>
           </div>
-          <div class="flex justify-end">
-            <button onclick="closeModal()" class="mt-4 px-4 py-2 bg-[#493628] text-white rounded ">Close</button>
+          <div class="flex justify-end space-x-2">
+            <button onclick="deleteExpenseFromModal()" class="mt-4 px-4 py-2 bg-[#E4E0E1] text-[#493628] font-medium rounded">Delete</button>
+            <button onclick="closeModal()" class="mt-4 px-4 py-2 bg-[#493628] text-white rounded font-medium">Close</button>
           </div>
         </div>
       </div>
