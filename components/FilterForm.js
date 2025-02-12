@@ -26,9 +26,9 @@ class FilterForm extends HTMLElement {
 
   populateYearOptions() {
     const currentYear = new Date().getFullYear();
-    const yearSelect = this.querySelector("#year");
+    const yearSelect = this.querySelector('#year');
     for (let year = currentYear; year >= 2025; year--) {
-      const option = document.createElement("option");
+      const option = document.createElement('option');
       option.value = year;
       option.textContent = year;
       yearSelect.appendChild(option);
@@ -38,22 +38,22 @@ class FilterForm extends HTMLElement {
   populateMonthOptions() {
     const currentMonth = new Date().getMonth() + 1;
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
-    const monthSelect = this.querySelector("#month");
+    const monthSelect = this.querySelector('#month');
     for (let i = 0; i < currentMonth; i++) {
-      const option = document.createElement("option");
+      const option = document.createElement('option');
       option.value = i + 1;
       option.textContent = months[i];
       monthSelect.appendChild(option);
@@ -61,4 +61,4 @@ class FilterForm extends HTMLElement {
   }
 }
 
-customElements.define("filter-form", FilterForm);
+customElements.define('filter-form', FilterForm);

@@ -7,7 +7,7 @@ class ExpenseTable extends HTMLElement {
             <tr>
               <th class="px-4 py-2 w-1/3 text-left">Date</th> 
               <th class="px-4 py-2 w-1/3 text-left">Description</th>
-              <th class="px-4 py-2 w-1/3 text-left cursor-pointer" onclick="sortTable()">Amount</th>
+              <th class="px-4 py-2 w-1/3 text-left cursor-pointer" onclick="sortTable()">Rp.</th>
             </tr>
           </thead>
           <tbody id="expenses-table-body">
@@ -38,4 +38,4 @@ class ExpenseTable extends HTMLElement {
   }
 }
 
-customElements.define("expense-table", ExpenseTable);
+customElements.define('expense-table', ExpenseTable);

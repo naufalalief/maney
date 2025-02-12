@@ -8,4 +8,4 @@ class FootCopy extends HTMLElement {
   }
 }
 
-customElements.define("foot-copy", FootCopy);
+customElements.define('foot-copy', FootCopy);

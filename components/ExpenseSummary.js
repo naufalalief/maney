@@ -28,4 +28,4 @@ class ExpenseSummary extends HTMLElement {
   }
 }
 
-customElements.define("expense-summary", ExpenseSummary);
+customElements.define('expense-summary', ExpenseSummary);

@@ -11,9 +11,9 @@ class AddExpenseForm extends HTMLElement {
           <input type="number" id="amount" placeholder="Enter amount" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
         </div>
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-          <input type="text" id="description" placeholder="Enter description" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
-        </div>
+  <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+  <textarea id="description" placeholder="Enter description" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5" rows="2"></textarea>
+</div>
         <div class="flex justify-end">
           <button onclick="addExpense()" class="bg-[#493628] font-medium text-white px-4 py-2 rounded w-full">Add Expense</button>
         </div>
@@ -22,4 +22,4 @@ class AddExpenseForm extends HTMLElement {
   }
 }
 
-customElements.define("add-expense-form", AddExpenseForm);
+customElements.define('add-expense-form', AddExpenseForm);

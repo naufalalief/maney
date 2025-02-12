@@ -1,53 +1,53 @@
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2';
 
-let sortOrder = "asc";
+let sortOrder = 'asc';
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentExpenseIndex = null;
 
 export function sortTable() {
-  const tableBody = document.getElementById("expenses-table-body");
-  const rows = Array.from(tableBody.querySelectorAll("tr"));
+  const tableBody = document.getElementById('expenses-table-body');
+  const rows = Array.from(tableBody.querySelectorAll('tr'));
   rows.sort((a, b) => {
     const amountA = parseFloat(
-      a.cells[2].textContent.replace(/[^0-9.-]+/g, "")
+      a.cells[2].textContent.replace(/[^0-9.-]+/g, '')
     );
     const amountB = parseFloat(
-      b.cells[2].textContent.replace(/[^0-9.-]+/g, "")
+      b.cells[2].textContent.replace(/[^0-9.-]+/g, '')
     );
-    return sortOrder === "asc" ? amountA - amountB : amountB - amountA;
+    return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
   });
   rows.forEach((row) => tableBody.appendChild(row));
-  sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 }
 
 export function addExpense() {
   try {
-    const datetime = document.getElementById("datetime").value;
-    const amount = document.getElementById("amount").value;
-    const description = document.getElementById("description").value;
+    const datetime = document.getElementById('datetime').value;
+    const amount = document.getElementById('amount').value;
+    const description = document.getElementById('description').value;
 
     if (!datetime || !amount || !description) {
-      alert("Please fill in all fields");
+      alert('Please fill in all fields');
       return;
     }
 
     const adjustedAmount = parseFloat(amount) * 1000;
     const expense = { datetime, amount: adjustedAmount, description };
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     expenses.push(expense);
-    localStorage.setItem("expenses", JSON.stringify(expenses));
+    localStorage.setItem('expenses', JSON.stringify(expenses));
 
-    document.getElementById("amount").value = "";
-    document.getElementById("description").value = "";
+    document.getElementById('amount').value = '';
+    document.getElementById('description').value = '';
 
     updateTotals();
     loadExpenses();
 
-    alert("Expense added successfully");
+    alert('Expense added successfully');
   } catch (error) {
-    console.error("Error adding expense:", error);
-    alert("An error occurred while adding the expense. Please try again.");
+    console.error('Error adding expense:', error);
+    alert('An error occurred while adding the expense. Please try again.');
   }
 }
 
@@ -58,20 +58,21 @@ export function updateTotals() {
 }
 
 export function updateTotalAllExpenses() {
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
   const totalAll = expenses.reduce(
     (sum, expense) => sum + parseFloat(expense.amount),
     0
   );
-  document.getElementById("total-expenses").textContent =
-    totalAll.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+  document.getElementById('total-expenses').textContent = totalAll
+    .toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
+    .replace('Rp', 'Rp. ');
 }
 
 export function updateTotalExpensesMonth() {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
   const totalMonth = expenses.reduce((sum, expense) => {
     const expenseDate = new Date(expense.datetime);
     const expenseMonth = expenseDate.getMonth() + 1;
@@ -81,13 +82,14 @@ export function updateTotalExpensesMonth() {
     }
     return sum;
   }, 0);
-  document.getElementById("total-expenses-month").textContent =
-    totalMonth.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+  document.getElementById('total-expenses-month').textContent = totalMonth
+    .toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
+    .replace('Rp', 'Rp. ');
 }
 
 export function updateTotalExpensesYear() {
   const currentYear = new Date().getFullYear();
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
   const totalYear = expenses.reduce((sum, expense) => {
     const expenseYear = new Date(expense.datetime).getFullYear();
     if (expenseYear === currentYear) {
@@ -95,54 +97,57 @@ export function updateTotalExpensesYear() {
     }
     return sum;
   }, 0);
-  document.getElementById("total-expenses-year").textContent =
-    totalYear.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+  document.getElementById('total-expenses-year').textContent = totalYear
+    .toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
+    .replace('Rp', 'Rp. ');
 }
 
 export function loadExpenses() {
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  const tableBody = document.getElementById("expenses-table-body");
-  tableBody.innerHTML = "";
+  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const tableBody = document.getElementById('expenses-table-body');
+  tableBody.innerHTML = '';
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedExpenses = expenses.slice(startIndex, endIndex);
 
   if (paginatedExpenses.length === 0) {
-    const noDataRow = document.createElement("tr");
+    const noDataRow = document.createElement('tr');
     noDataRow.innerHTML = `<td colspan="3" class="text-center py-4">Empty data</td>`;
     tableBody.appendChild(noDataRow);
   } else {
     paginatedExpenses.forEach((exp, index) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
+      const localDatetime = new Date(exp.datetime).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
       });
       const trimmedDescription =
         exp.description.length > 10
-          ? exp.description.substring(0, 10) + "..."
+          ? exp.description.substring(0, 10) + '...'
           : exp.description;
 
-      const newRow = document.createElement("tr");
-      newRow.classList.add("hover:bg-gray-50");
+      const newRow = document.createElement('tr');
+      newRow.classList.add('hover:bg-gray-50');
       if (index < paginatedExpenses.length - 1) {
-        newRow.classList.add("border-b");
+        newRow.classList.add('border-b');
       }
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
         <td class="px-4 py-2 cursor-pointer underline text-underline" data-index="${startIndex + index}">${trimmedDescription}</td>
-        <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        })}</td>
+        <td class="px-4 py-2">${parseFloat(exp.amount)
+          .toLocaleString('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          })
+          .replace('Rp', '')}</td>
       `;
       newRow
-        .querySelector("td[data-index]")
-        .addEventListener("click", (event) => {
-          const index = event.target.getAttribute("data-index");
+        .querySelector('td[data-index]')
+        .addEventListener('click', (event) => {
+          const index = event.target.getAttribute('data-index');
           showModal(index);
         });
       tableBody.appendChild(newRow);
@@ -153,12 +158,12 @@ export function loadExpenses() {
 }
 
 export function updatePaginationInfo(totalItems) {
-  const pageInfo = document.getElementById("page-info");
+  const pageInfo = document.getElementById('page-info');
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
 
-  document.getElementById("prev-page").disabled = currentPage === 1;
-  document.getElementById("next-page").disabled = currentPage === totalPages;
+  document.getElementById('prev-page').disabled = currentPage === 1;
+  document.getElementById('next-page').disabled = currentPage === totalPages;
 }
 
 export function prevPage() {
@@ -169,7 +174,7 @@ export function prevPage() {
 }
 
 export function nextPage() {
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
   const totalPages = Math.ceil(expenses.length / itemsPerPage);
   if (currentPage < totalPages) {
     currentPage++;
@@ -178,13 +183,13 @@ export function nextPage() {
 }
 
 export function deleteExpense(index) {
-  if (confirm("Are you sure you want to delete this expense?")) {
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  if (confirm('Are you sure you want to delete this expense?')) {
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     expenses.splice(index, 1);
-    localStorage.setItem("expenses", JSON.stringify(expenses));
+    localStorage.setItem('expenses', JSON.stringify(expenses));
     updateTotals();
     loadExpenses();
-    alert("Expense deleted successfully");
+    alert('Expense deleted successfully');
   }
 }
 
@@ -195,8 +200,8 @@ export function deleteExpenseFromModal() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const datetimeInput = document.getElementById("datetime");
+document.addEventListener('DOMContentLoaded', () => {
+  const datetimeInput = document.getElementById('datetime');
 
   function updateDatetime() {
     const now = new Date();
@@ -209,21 +214,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document
-    .getElementById("toggle-form-button")
-    .addEventListener("click", () => {
-      const form = document.querySelector("add-expense-form");
-      form.classList.toggle("hidden");
-      if (!form.classList.contains("hidden")) {
+    .getElementById('toggle-form-button')
+    .addEventListener('click', () => {
+      const form = document.querySelector('add-expense-form');
+      form.classList.toggle('hidden');
+      if (!form.classList.contains('hidden')) {
         updateDatetime();
       }
       refreshData();
     });
 
   document
-    .getElementById("toggle-filter-button")
-    .addEventListener("click", () => {
-      const filter = document.querySelector("filter-form");
-      filter.classList.toggle("hidden");
+    .getElementById('toggle-filter-button')
+    .addEventListener('click', () => {
+      const filter = document.querySelector('filter-form');
+      filter.classList.toggle('hidden');
       refreshData();
     });
 
@@ -234,17 +239,17 @@ document.addEventListener("DOMContentLoaded", () => {
 export function downloadData() {
   try {
     const data = JSON.stringify(localStorage);
-    const blob = new Blob([data], { type: "application/json" });
+    const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = "data.json";
+    a.download = 'data.json';
     a.click();
     URL.revokeObjectURL(url);
-    alert("Data downloaded successfully");
+    alert('Data downloaded successfully');
   } catch (error) {
-    console.error("Error downloading data:", error);
-    alert("An error occurred while downloading the data. Please try again.");
+    console.error('Error downloading data:', error);
+    alert('An error occurred while downloading the data. Please try again.');
   }
 }
 
@@ -265,71 +270,70 @@ export function loadData(event) {
       loadExpenses();
     };
     reader.readAsText(file);
-    alert("Data loaded successfully");
+    alert('Data loaded successfully');
   } catch (error) {
-    console.error("Error loading data:", error);
-    alert("An error occurred while loading the data. Please try again.");
+    console.error('Error loading data:', error);
+    alert('An error occurred while loading the data. Please try again.');
   }
 }
 
 export function filterData() {
   try {
-    const selectedYear = document.getElementById("year").value;
-    const selectedMonth = document.getElementById("month").value;
+    const selectedYear = document.getElementById('year').value;
+    const selectedMonth = document.getElementById('month').value;
 
-    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     const filteredExpenses = expenses.filter((expense) => {
       const expenseDate = new Date(expense.datetime);
       const expenseYear = expenseDate.getFullYear();
       const expenseMonth = expenseDate.getMonth() + 1;
 
       return (
-        (selectedYear === "" || expenseYear == selectedYear) &&
-        (selectedMonth === "" || expenseMonth == selectedMonth)
+        (selectedYear === '' || expenseYear == selectedYear) &&
+        (selectedMonth === '' || expenseMonth == selectedMonth)
       );
     });
 
-    const tableBody = document.getElementById("expenses-table-body");
-    tableBody.innerHTML = "";
+    const tableBody = document.getElementById('expenses-table-body');
+    tableBody.innerHTML = '';
 
     if (filteredExpenses.length === 0) {
-      const noDataRow = document.createElement("tr");
+      const noDataRow = document.createElement('tr');
       noDataRow.innerHTML = `<td colspan="3" class="text-center py-4">Data not found</td>`;
       tableBody.appendChild(noDataRow);
     } else {
       filteredExpenses.forEach((exp, index) => {
-        const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
+        const localDatetime = new Date(exp.datetime).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
         });
         const trimmedDescription =
           exp.description.length > 10
-            ? exp.description.substring(0, 10) + "..."
+            ? exp.description.substring(0, 10) + '...'
             : exp.description;
 
-        const newRow = document.createElement("tr");
-        newRow.classList.add("hover:bg-gray-50");
+        const newRow = document.createElement('tr');
+        newRow.classList.add('hover:bg-gray-50');
         if (index < filteredExpenses.length - 1) {
-          newRow.classList.add("border-b");
+          newRow.classList.add('border-b');
         }
         newRow.innerHTML = `
           <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
           <td class="px-4 py-2 underline text-underline">${trimmedDescription}</td>
-          <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString(
-            "id-ID",
-            {
-              style: "currency",
-              currency: "IDR",
+          <td class="px-4 py-2">${parseFloat(exp.amount)
+            .toLocaleString('id-ID', {
+              style: 'currency',
+              currency: 'IDR',
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
-            }
-          )}</td>
+            })
+            .replace('Rp', '')}</td>
         `;
         newRow
-          .querySelector("td[data-index]")
-          .addEventListener("click", (event) => {
-            const index = event.target.getAttribute("data-index");
+          .querySelector('td[data-index]')
+          .addEventListener('click', (event) => {
+            const index = event.target.getAttribute('data-index');
             deleteExpense(index);
           });
         tableBody.appendChild(newRow);
@@ -338,59 +342,58 @@ export function filterData() {
 
     alert(`${filteredExpenses.length} data found`);
   } catch (error) {
-    console.error("Error filtering data:", error);
-    alert("An error occurred while filtering the data. Please try again.");
+    console.error('Error filtering data:', error);
+    alert('An error occurred while filtering the data. Please try again.');
   }
 }
 
 export function refreshData() {
-  document.getElementById("year").value = "";
-  document.getElementById("month").value = "";
+  document.getElementById('year').value = '';
+  document.getElementById('month').value = '';
   loadExpenses();
   updateTotals();
 }
 
 export function showModal(index) {
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
   const expense = expenses[index];
   currentExpenseIndex = index;
 
-  document.getElementById("modal-date").innerHTML =
+  document.getElementById('modal-date').innerHTML =
     `<strong>Date:</strong><br>${new Date(expense.datetime).toLocaleString(
-      "en-GB",
+      'en-GB',
       {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: false,
       }
     )}`;
-  document.getElementById("modal-description").innerHTML =
+  document.getElementById('modal-description').innerHTML =
     `<strong>Description:</strong><br>${expense.description}`;
-  document.getElementById("modal-amount").innerHTML =
-    `<strong>Amount:</strong><br>${parseFloat(expense.amount).toLocaleString(
-      "id-ID",
-      {
-        style: "currency",
-        currency: "IDR",
+  document.getElementById('modal-amount').innerHTML =
+    `<strong>Amount:</strong><br>${parseFloat(expense.amount)
+      .toLocaleString('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }
-    )}`;
+      })
+      .replace('Rp', '')}`;
 
-  document.getElementById("expense-modal").classList.remove("hidden");
+  document.getElementById('expense-modal').classList.remove('hidden');
 }
 
 export function closeModal() {
-  document.getElementById("expense-modal").classList.add("hidden");
+  document.getElementById('expense-modal').classList.add('hidden');
   currentExpenseIndex = null;
 }
 
 export default function app() {
-  document.addEventListener("DOMContentLoaded", () => {
-    const datetimeInput = document.getElementById("datetime");
+  document.addEventListener('DOMContentLoaded', () => {
+    const datetimeInput = document.getElementById('datetime');
 
     function updateDatetime() {
       const now = new Date();
@@ -403,21 +406,21 @@ export default function app() {
     }
 
     document
-      .getElementById("toggle-form-button")
-      .addEventListener("click", () => {
-        const form = document.querySelector("add-expense-form");
-        form.classList.toggle("hidden");
-        if (!form.classList.contains("hidden")) {
+      .getElementById('toggle-form-button')
+      .addEventListener('click', () => {
+        const form = document.querySelector('add-expense-form');
+        form.classList.toggle('hidden');
+        if (!form.classList.contains('hidden')) {
           updateDatetime();
         }
         refreshData();
       });
 
     document
-      .getElementById("toggle-filter-button")
-      .addEventListener("click", () => {
-        const filter = document.querySelector("filter-form");
-        filter.classList.toggle("hidden");
+      .getElementById('toggle-filter-button')
+      .addEventListener('click', () => {
+        const filter = document.querySelector('filter-form');
+        filter.classList.toggle('hidden');
         refreshData();
       });
 

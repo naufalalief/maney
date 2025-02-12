@@ -27,11 +27,11 @@ class NavBar extends HTMLElement {
       </nav>
     `;
 
-    this.querySelector("#toggle-button").addEventListener("click", () => {
-      const navbarDefault = this.querySelector("#navbar-default");
-      navbarDefault.classList.toggle("hidden");
+    this.querySelector('#toggle-button').addEventListener('click', () => {
+      const navbarDefault = this.querySelector('#navbar-default');
+      navbarDefault.classList.toggle('hidden');
     });
   }
 }
 
-customElements.define("nav-bar", NavBar);
+customElements.define('nav-bar', NavBar);
