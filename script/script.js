@@ -153,44 +153,15 @@ function deleteExpense(index) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const datetimeInput = document.getElementById("datetime");
-  const now = new Date();
-  const localDatetime = new Date(
-    now.getTime() - now.getTimezoneOffset() * 60000
-  )
-    .toISOString()
-    .slice(0, 16);
-  datetimeInput.value = localDatetime;
 
-  const currentYear = new Date().getFullYear();
-  const yearSelect = document.getElementById("year");
-  for (let year = currentYear; year >= 2025; year--) {
-    const option = document.createElement("option");
-    option.value = year;
-    option.textContent = year;
-    yearSelect.appendChild(option);
-  }
-
-  const currentMonth = new Date().getMonth() + 1;
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const monthSelect = document.getElementById("month");
-  for (let i = 0; i < currentMonth; i++) {
-    const option = document.createElement("option");
-    option.value = i + 1;
-    option.textContent = months[i];
-    monthSelect.appendChild(option);
+  function updateDatetime() {
+    const now = new Date();
+    const localDatetime = new Date(
+      now.getTime() - now.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .slice(0, 16);
+    datetimeInput.value = localDatetime;
   }
 
   document
@@ -198,6 +169,9 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", () => {
       const form = document.querySelector("add-expense-form");
       form.classList.toggle("hidden");
+      if (!form.classList.contains("hidden")) {
+        updateDatetime();
+      }
     });
 
   document
