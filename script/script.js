@@ -35,7 +35,6 @@ function addExpense() {
     localStorage.setItem("expenses", JSON.stringify(expenses));
 
     // Clear the input fields
-    document.getElementById("datetime").value = "";
     document.getElementById("amount").value = "";
     document.getElementById("description").value = "";
 
@@ -110,25 +109,29 @@ function loadExpenses() {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
       });
+      const trimmedDescription =
+        exp.description.length > 10
+          ? exp.description.substring(0, 10) + "..."
+          : exp.description;
+
       const newRow = document.createElement("tr");
       newRow.classList.add("hover:bg-gray-50", "border-b");
       newRow.innerHTML = `
-        <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
-        <td class="px-4 py-2">${exp.description}</td>
+        <td class="px-4 py-2">${localDatetime}</td>
+        <td class="px-4 py-2 cursor-pointer" data-index="${index}">${trimmedDescription}</td>
         <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString("id-ID", {
           style: "currency",
           currency: "IDR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
         })}</td>
       `;
       newRow
         .querySelector("td[data-index]")
         .addEventListener("click", (event) => {
           const index = event.target.getAttribute("data-index");
-          deleteExpense(index);
+          showModal(index);
         });
       tableBody.appendChild(newRow);
     });
@@ -289,20 +292,24 @@ function filterData() {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
         });
+        const trimmedDescription =
+          exp.description.length > 10
+            ? exp.description.substring(0, 10) + "..."
+            : exp.description;
+
         const newRow = document.createElement("tr");
         newRow.classList.add("hover:bg-gray-50", "border-b");
         newRow.innerHTML = `
           <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
-          <td class="px-4 py-2">${exp.description}</td>
+          <td class="px-4 py-2">${trimmedDescription}</td>
           <td class="px-4 py-2">${parseFloat(exp.amount).toLocaleString(
             "id-ID",
             {
               style: "currency",
               currency: "IDR",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
             }
           )}</td>
         `;
@@ -330,4 +337,41 @@ function refreshData() {
   updateTotalAllExpenses();
   updateTotalExpensesMonth();
   updateTotalExpensesYear();
+}
+
+function showModal(index) {
+  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const expense = expenses[index];
+
+  document.getElementById(
+    "modal-date"
+  ).innerHTML = `<strong>Date:</strong><br>${new Date(
+    expense.datetime
+  ).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })}`;
+  document.getElementById(
+    "modal-description"
+  ).innerHTML = `<strong>Description:</strong><br>${expense.description}`;
+  document.getElementById(
+    "modal-amount"
+  ).innerHTML = `<strong>Amount:</strong><br>${parseFloat(
+    expense.amount
+  ).toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+
+  document.getElementById("expense-modal").classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("expense-modal").classList.add("hidden");
 }
