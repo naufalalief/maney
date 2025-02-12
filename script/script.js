@@ -28,7 +28,7 @@ export function addExpense() {
     const description = document.getElementById('description').value;
 
     if (!datetime || !amount || !description) {
-      alert('Please fill in all fields');
+      Swal.fire('Error', 'Please fill in all fields', 'error');
       return;
     }
 
@@ -44,10 +44,14 @@ export function addExpense() {
     updateTotals();
     loadExpenses();
 
-    alert('Expense added successfully');
+    Swal.fire('Success', 'Expense added successfully', 'success');
   } catch (error) {
     console.error('Error adding expense:', error);
-    alert('An error occurred while adding the expense. Please try again.');
+    Swal.fire(
+      'Error',
+      'An error occurred while adding the expense. Please try again.',
+      'error'
+    );
   }
 }
 
@@ -183,14 +187,23 @@ export function nextPage() {
 }
 
 export function deleteExpense(index) {
-  if (confirm('Are you sure you want to delete this expense?')) {
-    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    expenses.splice(index, 1);
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-    updateTotals();
-    loadExpenses();
-    alert('Expense deleted successfully');
-  }
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'No, cancel!',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+      expenses.splice(index, 1);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      updateTotals();
+      loadExpenses();
+      Swal.fire('Deleted!', 'Your expense has been deleted.', 'success');
+    }
+  });
 }
 
 export function deleteExpenseFromModal() {
@@ -246,10 +259,14 @@ export function downloadData() {
     a.download = 'data.json';
     a.click();
     URL.revokeObjectURL(url);
-    alert('Data downloaded successfully');
+    Swal.fire('Success', 'Data downloaded successfully', 'success');
   } catch (error) {
     console.error('Error downloading data:', error);
-    alert('An error occurred while downloading the data. Please try again.');
+    Swal.fire(
+      'Error',
+      'An error occurred while downloading the data. Please try again.',
+      'error'
+    );
   }
 }
 
@@ -270,10 +287,14 @@ export function loadData(event) {
       loadExpenses();
     };
     reader.readAsText(file);
-    alert('Data loaded successfully');
+    Swal.fire('Success', 'Data loaded successfully', 'success');
   } catch (error) {
     console.error('Error loading data:', error);
-    alert('An error occurred while loading the data. Please try again.');
+    Swal.fire(
+      'Error',
+      'An error occurred while loading the data. Please try again.',
+      'error'
+    );
   }
 }
 
@@ -340,10 +361,14 @@ export function filterData() {
       });
     }
 
-    alert(`${filteredExpenses.length} data found`);
+    Swal.fire('Success', `${filteredExpenses.length} data found`, 'success');
   } catch (error) {
     console.error('Error filtering data:', error);
-    alert('An error occurred while filtering the data. Please try again.');
+    Swal.fire(
+      'Error',
+      'An error occurred while filtering the data. Please try again.',
+      'error'
+    );
   }
 }
 
