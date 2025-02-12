@@ -5,20 +5,66 @@ let currentPage = 1;
 const itemsPerPage = 10;
 let currentExpenseIndex = null;
 
+function getExpenses() {
+  return JSON.parse(localStorage.getItem('expenses')) || [];
+}
+
+function setExpenses(expenses) {
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+}
+
+function formatCurrency(amount) {
+  return parseFloat(amount)
+    .toLocaleString('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+    .replace('Rp', 'Rp. ');
+}
+
+function formatDate(datetime) {
+  return new Date(datetime).toLocaleString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
+function formatDateTime(datetime) {
+  return new Date(datetime).toLocaleString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
 export function sortTable() {
-  const tableBody = document.getElementById('expenses-table-body');
-  const rows = Array.from(tableBody.querySelectorAll('tr'));
-  rows.sort((a, b) => {
-    const amountA = parseFloat(
-      a.cells[2].textContent.replace(/[^0-9.-]+/g, '')
-    );
-    const amountB = parseFloat(
-      b.cells[2].textContent.replace(/[^0-9.-]+/g, '')
-    );
+  const expenses = getExpenses();
+  expenses.sort((a, b) => {
+    const amountA = parseFloat(a.amount);
+    const amountB = parseFloat(b.amount);
     return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
   });
-  rows.forEach((row) => tableBody.appendChild(row));
+  setExpenses(expenses);
   sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+  loadExpenses();
+}
+
+export function sortTableByDate() {
+  const expenses = getExpenses();
+  expenses.sort((a, b) => {
+    const dateA = new Date(a.datetime);
+    const dateB = new Date(b.datetime);
+    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+  });
+  setExpenses(expenses);
+  sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+  loadExpenses();
 }
 
 export function addExpense() {
@@ -34,9 +80,9 @@ export function addExpense() {
 
     const adjustedAmount = parseFloat(amount) * 1000;
     const expense = { datetime, amount: adjustedAmount, description };
-    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    const expenses = getExpenses();
     expenses.push(expense);
-    localStorage.setItem('expenses', JSON.stringify(expenses));
+    setExpenses(expenses);
 
     document.getElementById('amount').value = '';
     document.getElementById('description').value = '';
@@ -62,21 +108,20 @@ export function updateTotals() {
 }
 
 export function updateTotalAllExpenses() {
-  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const expenses = getExpenses();
   const totalAll = expenses.reduce(
     (sum, expense) => sum + parseFloat(expense.amount),
     0
   );
-  document.getElementById('total-expenses').textContent = totalAll
-    .toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
-    .replace('Rp', 'Rp. ');
+  document.getElementById('total-expenses').textContent =
+    formatCurrency(totalAll);
 }
 
 export function updateTotalExpensesMonth() {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
-  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const expenses = getExpenses();
   const totalMonth = expenses.reduce((sum, expense) => {
     const expenseDate = new Date(expense.datetime);
     const expenseMonth = expenseDate.getMonth() + 1;
@@ -86,14 +131,13 @@ export function updateTotalExpensesMonth() {
     }
     return sum;
   }, 0);
-  document.getElementById('total-expenses-month').textContent = totalMonth
-    .toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
-    .replace('Rp', 'Rp. ');
+  document.getElementById('total-expenses-month').textContent =
+    formatCurrency(totalMonth);
 }
 
 export function updateTotalExpensesYear() {
   const currentYear = new Date().getFullYear();
-  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const expenses = getExpenses();
   const totalYear = expenses.reduce((sum, expense) => {
     const expenseYear = new Date(expense.datetime).getFullYear();
     if (expenseYear === currentYear) {
@@ -101,13 +145,12 @@ export function updateTotalExpensesYear() {
     }
     return sum;
   }, 0);
-  document.getElementById('total-expenses-year').textContent = totalYear
-    .toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
-    .replace('Rp', 'Rp. ');
+  document.getElementById('total-expenses-year').textContent =
+    formatCurrency(totalYear);
 }
 
 export function loadExpenses() {
-  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const expenses = getExpenses();
   const tableBody = document.getElementById('expenses-table-body');
   tableBody.innerHTML = '';
 
@@ -121,11 +164,7 @@ export function loadExpenses() {
     tableBody.appendChild(noDataRow);
   } else {
     paginatedExpenses.forEach((exp, index) => {
-      const localDatetime = new Date(exp.datetime).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+      const localDatetime = formatDate(exp.datetime);
       const trimmedDescription =
         exp.description.length > 10
           ? exp.description.substring(0, 10) + '...'
@@ -133,20 +172,10 @@ export function loadExpenses() {
 
       const newRow = document.createElement('tr');
       newRow.classList.add('hover:bg-gray-50');
-      if (index < paginatedExpenses.length - 1) {
-        newRow.classList.add('border-b');
-      }
       newRow.innerHTML = `
         <td class="px-4 py-2">${localDatetime}</td>
         <td class="px-4 py-2 cursor-pointer underline text-underline" data-index="${startIndex + index}">${trimmedDescription}</td>
-        <td class="px-4 py-2">${parseFloat(exp.amount)
-          .toLocaleString('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          })
-          .replace('Rp', '')}</td>
+        <td class="px-4 py-2">${formatCurrency(exp.amount)}</td>
       `;
       newRow
         .querySelector('td[data-index]')
@@ -158,7 +187,19 @@ export function loadExpenses() {
     });
   }
 
+  updateRowBorders();
   updatePaginationInfo(expenses.length);
+}
+
+function updateRowBorders() {
+  const rows = document.querySelectorAll('#expenses-table-body tr');
+  rows.forEach((row, index) => {
+    if (index === rows.length - 1) {
+      row.classList.remove('border-b');
+    } else {
+      row.classList.add('border-b');
+    }
+  });
 }
 
 export function updatePaginationInfo(totalItems) {
@@ -178,7 +219,7 @@ export function prevPage() {
 }
 
 export function nextPage() {
-  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const expenses = getExpenses();
   const totalPages = Math.ceil(expenses.length / itemsPerPage);
   if (currentPage < totalPages) {
     currentPage++;
@@ -196,9 +237,9 @@ export function deleteExpense(index) {
     cancelButtonText: 'No, cancel!',
   }).then((result) => {
     if (result.isConfirmed) {
-      let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+      const expenses = getExpenses();
       expenses.splice(index, 1);
-      localStorage.setItem('expenses', JSON.stringify(expenses));
+      setExpenses(expenses);
       updateTotals();
       loadExpenses();
       Swal.fire('Deleted!', 'Your expense has been deleted.', 'success');
@@ -234,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!form.classList.contains('hidden')) {
         updateDatetime();
       }
+      resetData();
       refreshData();
     });
 
@@ -242,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .addEventListener('click', () => {
       const filter = document.querySelector('filter-form');
       filter.classList.toggle('hidden');
+      resetData();
       refreshData();
     });
 
@@ -303,7 +346,7 @@ export function filterData() {
     const selectedYear = document.getElementById('year').value;
     const selectedMonth = document.getElementById('month').value;
 
-    const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    const expenses = getExpenses();
     const filteredExpenses = expenses.filter((expense) => {
       const expenseDate = new Date(expense.datetime);
       const expenseYear = expenseDate.getFullYear();
@@ -324,11 +367,7 @@ export function filterData() {
       tableBody.appendChild(noDataRow);
     } else {
       filteredExpenses.forEach((exp, index) => {
-        const localDatetime = new Date(exp.datetime).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
+        const localDatetime = formatDate(exp.datetime);
         const trimmedDescription =
           exp.description.length > 10
             ? exp.description.substring(0, 10) + '...'
@@ -336,20 +375,10 @@ export function filterData() {
 
         const newRow = document.createElement('tr');
         newRow.classList.add('hover:bg-gray-50');
-        if (index < filteredExpenses.length - 1) {
-          newRow.classList.add('border-b');
-        }
         newRow.innerHTML = `
           <td class="px-4 py-2 cursor-pointer" data-index="${index}">${localDatetime}</td>
           <td class="px-4 py-2 underline text-underline">${trimmedDescription}</td>
-          <td class="px-4 py-2">${parseFloat(exp.amount)
-            .toLocaleString('id-ID', {
-              style: 'currency',
-              currency: 'IDR',
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            })
-            .replace('Rp', '')}</td>
+          <td class="px-4 py-2">${formatCurrency(exp.amount)}</td>
         `;
         newRow
           .querySelector('td[data-index]')
@@ -361,6 +390,7 @@ export function filterData() {
       });
     }
 
+    updateRowBorders();
     Swal.fire('Success', `${filteredExpenses.length} data found`, 'success');
   } catch (error) {
     console.error('Error filtering data:', error);
@@ -375,38 +405,29 @@ export function filterData() {
 export function refreshData() {
   document.getElementById('year').value = '';
   document.getElementById('month').value = '';
+  sortTableByDate();
+  loadExpenses();
+  updateTotals();
+}
+
+export function resetData() {
+  currentPage = 1;
+  sortOrder = 'asc';
   loadExpenses();
   updateTotals();
 }
 
 export function showModal(index) {
-  const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  const expenses = getExpenses();
   const expense = expenses[index];
   currentExpenseIndex = index;
 
   document.getElementById('modal-date').innerHTML =
-    `<strong>Date:</strong><br>${new Date(expense.datetime).toLocaleString(
-      'en-GB',
-      {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }
-    )}`;
+    `<strong>Date:</strong><br>${formatDateTime(expense.datetime)}`;
   document.getElementById('modal-description').innerHTML =
     `<strong>Description:</strong><br>${expense.description}`;
   document.getElementById('modal-amount').innerHTML =
-    `<strong>Rp.</strong><br>${parseFloat(expense.amount)
-      .toLocaleString('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      })
-      .replace('Rp', '')}`;
+    `<strong>Rp.</strong><br>${formatCurrency(expense.amount)}`;
 
   document.getElementById('expense-modal').classList.remove('hidden');
 }
@@ -417,39 +438,6 @@ export function closeModal() {
 }
 
 export default function app() {
-  document.addEventListener('DOMContentLoaded', () => {
-    const datetimeInput = document.getElementById('datetime');
-
-    function updateDatetime() {
-      const now = new Date();
-      const localDatetime = new Date(
-        now.getTime() - now.getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .slice(0, 16);
-      datetimeInput.value = localDatetime;
-    }
-
-    document
-      .getElementById('toggle-form-button')
-      .addEventListener('click', () => {
-        const form = document.querySelector('add-expense-form');
-        form.classList.toggle('hidden');
-        if (!form.classList.contains('hidden')) {
-          updateDatetime();
-        }
-        refreshData();
-      });
-
-    document
-      .getElementById('toggle-filter-button')
-      .addEventListener('click', () => {
-        const filter = document.querySelector('filter-form');
-        filter.classList.toggle('hidden');
-        refreshData();
-      });
-
-    updateTotals();
-    loadExpenses();
-  });
+  updateTotals();
+  loadExpenses();
 }

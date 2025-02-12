@@ -5,7 +5,7 @@ class ExpenseTable extends HTMLElement {
         <table class="min-w-full bg-white border border-gray-300 rounded">
           <thead class="bg-[#AB886D]">
             <tr>
-              <th class="px-4 py-2 w-1/3 text-left">Date</th> 
+              <th class="px-4 py-2 w-1/3 text-left" onclick="sortTableByDate()">Date</th> 
               <th class="px-4 py-2 w-1/3 text-left">Description</th>
               <th class="px-4 py-2 w-1/3 text-left cursor-pointer" onclick="sortTable()">Rp.</th>
             </tr>
