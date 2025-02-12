@@ -1,4 +1,7 @@
 let sortOrder = "asc";
+let currentPage = 1;
+const itemsPerPage = 10;
+
 function sortTable() {
   const tableBody = document.getElementById("expenses-table-body");
   const rows = Array.from(tableBody.querySelectorAll("tr"));
@@ -97,14 +100,18 @@ function loadExpenses() {
   const tableBody = document.getElementById("expenses-table-body");
   tableBody.innerHTML = "";
 
-  if (expenses.length === 0) {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedExpenses = expenses.slice(startIndex, endIndex);
+
+  if (paginatedExpenses.length === 0) {
     const noDataRow = document.createElement("tr");
     noDataRow.innerHTML = `
       <td colspan="3" class="text-center py-4">Empty data</td>
     `;
     tableBody.appendChild(noDataRow);
   } else {
-    expenses.forEach((exp, index) => {
+    paginatedExpenses.forEach((exp, index) => {
       const localDatetime = new Date(exp.datetime).toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -135,6 +142,33 @@ function loadExpenses() {
         });
       tableBody.appendChild(newRow);
     });
+  }
+
+  updatePaginationInfo(expenses.length);
+}
+
+function updatePaginationInfo(totalItems) {
+  const pageInfo = document.getElementById("page-info");
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+
+  document.getElementById("prev-page").disabled = currentPage === 1;
+  document.getElementById("next-page").disabled = currentPage === totalPages;
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadExpenses();
+  }
+}
+
+function nextPage() {
+  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const totalPages = Math.ceil(expenses.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    loadExpenses();
   }
 }
 
@@ -182,10 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
       filter.classList.toggle("hidden");
       refreshData();
     });
-
-  document
-    .getElementById("refresh-button")
-    .addEventListener("click", refreshData);
 
   updateTotalAllExpenses();
   updateTotalExpensesMonth();
