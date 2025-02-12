@@ -172,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!form.classList.contains("hidden")) {
         updateDatetime();
       }
+      refreshData();
     });
 
   document
@@ -179,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", () => {
       const filter = document.querySelector("filter-form");
       filter.classList.toggle("hidden");
+      refreshData();
     });
 
   document
