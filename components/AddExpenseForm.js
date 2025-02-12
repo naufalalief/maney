@@ -4,7 +4,7 @@ class AddExpenseForm extends HTMLElement {
       <div class="flex space-y-4 mb-4 flex-col border border-gray-300 p-4 rounded bg-white shadow-md">
         <div>
           <label for="datetime" class="block text-sm font-medium text-gray-700">Date and Time</label>
-          <input type="datetime-local" id="datetime" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5" readonly>
+          <input type="datetime-local" id="datetime" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5" disabled>
         </div>
         <div>
           <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
