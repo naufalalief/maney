@@ -78,8 +78,7 @@ export function addExpense() {
       return;
     }
 
-    const adjustedAmount = parseFloat(amount) * 1000;
-    const expense = { datetime, amount: adjustedAmount, description };
+    const expense = { datetime, amount, description };
     const expenses = getExpenses();
     expenses.push(expense);
     setExpenses(expenses);
