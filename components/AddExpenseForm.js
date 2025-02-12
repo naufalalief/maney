@@ -8,7 +8,7 @@ class AddExpenseForm extends HTMLElement {
         </div>
         <div>
           <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-          <input type="number" inputmode="numeric" id="amount" placeholder="Enter amount" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
+          <input type="number" pattern="[0-9.,]" id="amount" placeholder="Enter amount" class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5">
         </div>
         <div>
   <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
